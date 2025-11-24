@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema Chamados - Fundação Uniselva</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--p:#2c5f8d;
+--pd:#1e4363;
+--s:#d4c5b9;
+--ok:#10b981;
+--warn:#f59e0b;
+--err:#ef4444;
+--bg:#f9fafb;
+--bg-card:#ffffff;
+--txt:#1f2937;
+--txt-secondary:#6b7280;
+--brd:#e5e7eb;
+--shadow:rgba(0,0,0,0.1);
+--shadow-hover:rgba(0,0,0,0.15);
+}
+[data-theme="dark"]{
+--p:#4a8bc2;
+--pd:#2c5f8d;
+--s:#8b7d6b;
+--ok:#34d399;
+--warn:#fbbf24;
+--err:#f87171;
+--bg:#111827;
+--bg-card:#1f2937;
+--txt:#f9fafb;
+--txt-secondary:#d1d5db;
+--brd:#374151;
+--shadow:rgba(0,0,0,0.3);
+--shadow-hover:rgba(0,0,0,0.5);
+}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--txt);line-height:1.6;transition:background .3s,color .3s}
+.hide{display:none!important}
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--p),var(--pd))}
+.box{background:var(--bg-card);padding:2.5rem;border-radius:20px;box-shadow:0 20px 60px var(--shadow-hover);width:100%;max-width:420px}
+.box h1{color:var(--p);text-align:center;margin-bottom:2rem;font-size:1.8rem}
+.fg{margin-bottom:1.2rem}
+.fg label{display:block;margin-bottom:.5rem;font-weight:600;font-size:.9rem}
+.fg input,.fg select,.fg textarea{width:100%;padding:.875rem;border:2px solid var(--brd);border-radius:10px;font-size:1rem;transition:.3s}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--p)}
+.btn{padding:.875rem 1.5rem;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;transition:.3s;display:inline-flex;align-items:center;gap:.5rem}
+.btn-p{background:var(--p);color:#fff;width:100%}
+.btn-p:hover{background:var(--pd)}
+.btn-s{background:var(--s);color:var(--txt)}
+#dash{display:flex;min-height:100vh}
+.side{width:280px;background:var(--bg);border-right:1px solid var(--brd);display:flex;flex-direction:column}
+.side-h{padding:1.5rem;border-bottom:1px solid var(--brd);text-align:center}
+.side-h h2{color:var(--p);font-size:1.3rem}
+.nav{flex:1;padding:1rem 0}
+.nav a{display:flex;align-items:center;padding:1rem 1.5rem;color:var(--txt);text-decoration:none;transition:.3s;gap:1rem}
+.nav a:hover,.nav a.active{background:var(--p);color:#fff}
+.side-f{padding:1.5rem;border-top:1px solid var(--brd)}
+.user{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}
+.avatar{width:45px;height:45px;border-radius:50%;background:var(--p);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem}
+.main{flex:1;padding:2rem}
+.tela{display:none}
+.tela.active{display:block}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;margin-bottom:2rem}
+.stat{background:var(--bg-card);padding:1.5rem;border-radius:15px;box-shadow:0 2px 8px var(--shadow);display:flex;align-items:center;gap:1.5rem;transition:.3s}
+.stat:hover{box-shadow:0 4px 12px var(--shadow-hover);transform:translateY(-2px)}
+.stat-icon{width:60px;height:60px;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:1.75rem;color:#fff}
+.stat-icon.blue{background:var(--p)}
+.stat-icon.yellow{background:var(--warn)}
+.stat-icon.green{background:var(--ok)}
+.stat-icon.red{background:var(--err)}
+.stat-info h3{font-size:2rem;margin-bottom:.25rem}
+.stat-info p{color:var(--txt-secondary);font-size:.875rem}
+.card{background:var(--bg-card);padding:2rem;border-radius:15px;box-shadow:0 2px 8px var(--shadow);margin-bottom:1.5rem}
+.card h2{margin-bottom:1.5rem;color:var(--p)}
+.chamado{background:var(--bg-card);padding:1.5rem;border-radius:12px;box-shadow:0 2px 8px var(--shadow);margin-bottom:1rem;cursor:pointer;transition:.3s;border-left:4px solid var(--p)}
+.chamado:hover{transform:translateX(5px);box-shadow:0 4px 12px var(--shadow-hover)}
+.chamado h3{margin-bottom:.5rem}
+.chamado-info{display:flex;gap:1.5rem;font-size:.875rem;color:var(--txt-secondary);flex-wrap:wrap}
+.badge{padding:.35rem .85rem;border-radius:20px;font-size:.75rem;font-weight:700;text-transform:uppercase;display:inline-flex;align-items:center;gap:.35rem}
+.badge-aberto{background:#dbeafe;color:#1e3a8a;border:1px solid #3b82f6}
+.badge-em-andamento{background:#fef3c7;color:#78350f;border:1px solid #f59e0b}
+.badge-resolvido{background:#d1fae5;color:#064e3b;border:1px solid #10b981}
+.badge-fechado{background:#e5e7eb;color:#1f2937;border:1px solid #6b7280}
+[data-theme="dark"] .badge-aberto{background:#1e3a8a;color:#dbeafe}
+[data-theme="dark"] .badge-em-andamento{background:#78350f;color:#fef3c7}
+[data-theme="dark"] .badge-resolvido{background:#064e3b;color:#d1fae5}
+[data-theme="dark"] .badge-fechado{background:#374151;color:#e5e7eb}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+.modal.show{display:flex}
+.modal-content{background:var(--bg-card);border-radius:20px;width:90%;max-width:800px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px var(--shadow-hover)}
+.modal-header{padding:1.5rem 2rem;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center}
+.modal-body{padding:2rem}
+.btn-close{width:35px;height:35px;border-radius:50%;border:none;background:var(--err);color:#fff;cursor:pointer;font-size:1.2rem}
+.chat{background:var(--bg);padding:2rem;border-radius:15px;margin-top:1.5rem;border:2px solid var(--brd)}
+.chat h3{color:var(--p);margin-bottom:1.5rem;display:flex;align-items:center;gap:.75rem;font-size:1.3rem;font-weight:700}
+.chat-msgs{max-height:500px;overflow-y:auto;margin-bottom:1.5rem;padding:1.5rem;background:var(--bg-card);border-radius:12px;border:2px solid var(--brd);scroll-behavior:smooth}
+.chat-msgs::-webkit-scrollbar{width:8px}
+.chat-msgs::-webkit-scrollbar-track{background:var(--bg);border-radius:10px}
+.chat-msgs::-webkit-scrollbar-thumb{background:var(--brd);border-radius:10px}
+.chat-msgs::-webkit-scrollbar-thumb:hover{background:var(--p)}
+.msg{margin-bottom:1.25rem;padding:1.5rem;border-radius:15px;max-width:75%;animation:slideIn .3s ease;word-wrap:break-word}
+@keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;margin-left:auto;box-shadow:0 4px 12px rgba(44,95,141,.3)}
+.msg.admin{background:var(--s);color:var(--txt);box-shadow:0 2px 8px var(--shadow)}
+.msg strong{display:block;margin-bottom:.75rem;font-size:1rem;font-weight:700;opacity:.95}
+.msg p{margin:.5rem 0;line-height:1.6;font-size:1rem;white-space:pre-wrap}
+.msg small{display:block;margin-top:.75rem;font-size:.85rem;opacity:.75;font-style:italic}
+.chat-input{display:flex;gap:1rem;align-items:flex-end;background:var(--bg-card);padding:1.5rem;border-radius:12px;border:2px solid var(--brd);flex-direction:column}
+.chat-input textarea{width:100%;padding:1.5rem;border:3px solid var(--brd);border-radius:15px;resize:vertical;min-height:120px;max-height:300px;font-size:1.1rem;font-family:inherit;line-height:1.7;transition:.3s;background:var(--bg);font-weight:500}
+.chat-input textarea:focus{border-color:var(--p);box-shadow:0 0 0 4px rgba(44,95,141,.15);outline:none}
+.chat-input .btn{padding:1.25rem 2rem;height:fit-content;width:100%;justify-content:center;font-size:1.05rem;font-weight:700;box-shadow:0 2px 8px var(--shadow)}
+.chat-input .btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px var(--shadow-hover)}
+.periodo-btn{transition:.3s}
+.periodo-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px var(--shadow-hover)}
+.periodo-btn.active{background:rgba(255,255,255,.4)!important;border-color:rgba(255,255,255,.6)!important;font-weight:700;transform:scale(1.05)}
+.notif{position:fixed;top:20px;right:20px;background:var(--bg-card);padding:1.25rem 1.75rem;border-radius:12px;box-shadow:0 10px 30px var(--shadow-hover);z-index:10000;transform:translateX(400px);opacity:0;transition:.3s}
+.notif.show{transform:translateX(0);opacity:1}
+.notif-ok{background:#d1fae5;color:#065f46;border-left:4px solid var(--ok)}
+.notif-err{background:#fee2e2;color:#991b1b;border-left:4px solid var(--err)}
+[data-theme="dark"] .notif-ok{background:#064e3b;color:#d1fae5}
+[data-theme="dark"] .notif-err{background:#7f1d1d;color:#fee2e2}
+@media(max-width:768px){#dash{flex-direction:column}.side{width:100%;height:auto}.main{padding:1rem}.stats{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="login">
+<div class="box">
+<h1><i class="fas fa-ticket-alt"></i> NPD Chamados</h1>
+<p style="text-align:center;margin-bottom:2rem;color:#666">Fundação Uniselva</p>
+<form id="formLogin">
+<div class="fg">
+<label>Email</label>
+<input type="email" id="email" required placeholder="seu@email.com">
+</div>
+<div class="fg">
+<label>Senha</label>
+<input type="password" id="senha" required placeholder="••••••••">
+</div>
+<button type="submit" class="btn btn-p"><i class="fas fa-sign-in-alt"></i> Entrar</button>
+</form>
+<p style="text-align:center;margin-top:1.5rem;font-size:.85rem;color:#999">
+Admin: admin@uniselva.org / admin123<br>
+User: joao@uniselva.org / user123
+</p>
+</div>
+</div>
+
+<!-- Dashboard -->
+<div id="dash" class="hide">
+<aside class="side">
+<div class="side-h">
+<h2><i class="fas fa-ticket-alt"></i> NPD</h2>
+</div>
+<nav class="nav">
+<a href="#" data-nav="novo" class="active user-only"><i class="fas fa-plus-circle"></i> Novo Chamado</a>
+<a href="#" data-nav="historico"><i class="fas fa-history"></i> <span class="nav-text">Meus Chamados</span></a>
+<a href="#" data-nav="dashboard" class="admin-only hide"><i class="fas fa-home"></i> Dashboard</a>
+<a href="#" data-nav="relatorios" class="admin-only hide"><i class="fas fa-chart-bar"></i> Relatórios</a>
+<a href="#" data-nav="usuarios" class="admin-only hide"><i class="fas fa-users"></i> Usuários</a>
+</nav>
+<div class="side-f">
+<div class="user">
+<div class="avatar"><i class="fas fa-user"></i></div>
+<div>
+<div id="nomeUser" style="font-weight:600"></div>
+<div id="tipoUser" style="font-size:.85rem;color:#999"></div>
+</div>
+</div>
+<button class="btn btn-s" style="width:100%;margin-bottom:.5rem" id="btnTema"><i class="fas fa-moon"></i> Tema</button>
+<button class="btn btn-p" style="width:100%" id="btnSair"><i class="fas fa-sign-out-alt"></i> Sair</button>
+</div>
+</aside>
+
+<main class="main">
+<!-- Novo Chamado -->
+<div id="tela-novo" class="tela active">
+<div class="card">
+<h2><i class="fas fa-plus-circle"></i> Abrir Novo Chamado</h2>
+<form id="formChamado">
+<div class="fg">
+<label>Título *</label>
+<input type="text" id="titulo" required placeholder="Ex: Computador não liga">
+</div>
+<div class="fg">
+<label>Categoria *</label>
+<select id="categoria" required>
+<option value="">Selecione...</option>
+<option value="Hardware">Hardware</option>
+<option value="Software">Software</option>
+<option value="Rede">Rede</option>
+<option value="Email">Email</option>
+<option value="Impressora">Impressora</option>
+<option value="Telefonia">Telefonia</option>
+<option value="Outro">Outro</option>
+</select>
+</div>
+<div class="fg">
+<label>Descrição *</label>
+<textarea id="descricao" rows="6" required placeholder="Descreva o problema em detalhes..."></textarea>
+</div>
+<button type="submit" class="btn btn-p"><i class="fas fa-paper-plane"></i> Enviar Chamado</button>
+</form>
+</div>
+</div>
+
+<!-- Histórico -->
+<div id="tela-historico" class="tela">
+<div class="card">
+<h2><i class="fas fa-history"></i> <span id="tituloHistorico">Meus Chamados</span></h2>
+<div id="listaChamados"></div>
+</div>
+</div>
+
+<!-- Dashboard -->
+<div id="tela-dashboard" class="tela">
+<div class="stats">
+<div class="stat">
+<div class="stat-icon blue"><i class="fas fa-ticket-alt"></i></div>
+<div class="stat-info"><h3 id="statTotal">0</h3><p>Total</p></div>
+</div>
+<div class="stat">
+<div class="stat-icon yellow"><i class="fas fa-clock"></i></div>
+<div class="stat-info"><h3 id="statAbertos">0</h3><p>Abertos</p></div>
+</div>
+<div class="stat">
+<div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+<div class="stat-info"><h3 id="statResolvidos">0</h3><p>Resolvidos</p></div>
+</div>
+<div class="stat">
+<div class="stat-icon red"><i class="fas fa-exclamation-triangle"></i></div>
+<div class="stat-info"><h3 id="statUrgentes">0</h3><p>Urgentes</p></div>
+</div>
+</div>
+<div class="card">
+<h2>Chamados por Status</h2>
+<canvas id="chartStatus" height="100"></canvas>
+</div>
+</div>
+
+<!-- Relatórios -->
+<div id="tela-relatorios" class="tela">
+<div class="card" style="background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;margin-bottom:2rem">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem">
+<div>
+<h2 style="color:#fff;margin:0;display:flex;align-items:center;gap:.75rem">
+<i class="fas fa-chart-line"></i> Relatórios e Análises
+</h2>
+<p style="margin:.5rem 0 0 0;opacity:.9;font-size:.95rem">Análise detalhada dos chamados</p>
+</div>
+<div style="display:flex;gap:.75rem;flex-wrap:wrap">
+<button class="btn periodo-btn active" data-periodo="semanal" style="background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.3)">
+<i class="fas fa-calendar-week"></i> Semanal
+</button>
+<button class="btn periodo-btn" data-periodo="mensal" style="background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.3)">
+<i class="fas fa-calendar-alt"></i> Mensal
+</button>
+<button class="btn periodo-btn" data-periodo="anual" style="background:rgba(255,255,255,.2);color:#fff;border:2px solid rgba(255,255,255,.3)">
+<i class="fas fa-calendar"></i> Anual
+</button>
+<button class="btn btn-p" id="btnPDF" style="background:#fff;color:var(--p);font-weight:700">
+<i class="fas fa-file-pdf"></i> Exportar PDF
+</button>
+</div>
+</div>
+</div>
+
+<div class="stats" style="margin-bottom:2rem">
+<div class="stat">
+<div class="stat-icon blue"><i class="fas fa-ticket-alt"></i></div>
+<div class="stat-info">
+<h3 id="relTotal">0</h3>
+<p>Total no Período</p>
+</div>
+</div>
+<div class="stat">
+<div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+<div class="stat-info">
+<h3 id="relResolvidos">0</h3>
+<p>Resolvidos</p>
+</div>
+</div>
+<div class="stat">
+<div class="stat-icon yellow"><i class="fas fa-clock"></i></div>
+<div class="stat-info">
+<h3 id="relTempo">0</h3>
+<p>Tempo Médio (dias)</p>
+</div>
+</div>
+<div class="stat">
+<div class="stat-icon" style="background:linear-gradient(135deg,#8b5cf6,#6366f1)">
+<i class="fas fa-percentage"></i>
+</div>
+<div class="stat-info">
+<h3 id="relTaxa">0%</h3>
+<p>Taxa de Resolução</p>
+</div>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:1.5rem">
+<div class="card">
+<h3 style="margin-bottom:1.5rem;color:var(--p);display:flex;align-items:center;gap:.5rem;font-size:1.1rem">
+<i class="fas fa-folder"></i> Chamados por Categoria
+</h3>
+<div style="position:relative;height:300px">
+<canvas id="chartCat"></canvas>
+</div>
+</div>
+<div class="card">
+<h3 style="margin-bottom:1.5rem;color:var(--p);display:flex;align-items:center;gap:.5rem;font-size:1.1rem">
+<i class="fas fa-flag"></i> Chamados por Prioridade
+</h3>
+<div style="position:relative;height:300px">
+<canvas id="chartPrio"></canvas>
+</div>
+</div>
+<div class="card">
+<h3 style="margin-bottom:1.5rem;color:var(--p);display:flex;align-items:center;gap:.5rem;font-size:1.1rem">
+<i class="fas fa-tasks"></i> Chamados por Status
+</h3>
+<div style="position:relative;height:300px">
+<canvas id="chartStatusRel"></canvas>
+</div>
+</div>
+<div class="card">
+<h3 style="margin-bottom:1.5rem;color:var(--p);display:flex;align-items:center;gap:.5rem;font-size:1.1rem">
+<i class="fas fa-chart-line"></i> Evolução Mensal
+</h3>
+<div style="position:relative;height:300px">
+<canvas id="chartMensal"></canvas>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Usuários -->
+<div id="tela-usuarios" class="tela">
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem">
+<h2><i class="fas fa-users"></i> Gerenciar Usuários</h2>
+<button class="btn btn-p" onclick="abrirModalUsuario()"><i class="fas fa-user-plus"></i> Novo Usuário</button>
+</div>
+<div id="listaUsuarios"></div>
+</div>
+</div>
+</main>
+</div>
+
+<!-- Modal -->
+<div id="modal" class="modal">
+<div class="modal-content">
+<div class="modal-header">
+<h2 id="modalTitulo"></h2>
+<button class="btn-close" onclick="fecharModal()"><i class="fas fa-times"></i></button>
+</div>
+<div class="modal-body">
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:1.5rem">
+<div><strong>ID:</strong> <span id="modalId"></span></div>
+<div><strong>Status:</strong> <span id="modalStatus" class="badge"></span></div>
+<div><strong>Categoria:</strong> <span id="modalCat"></span></div>
+<div><strong>Prioridade:</strong> <span id="modalPrio"></span></div>
+<div><strong>Solicitante:</strong> <span id="modalSolic"></span></div>
+<div><strong>Data:</strong> <span id="modalData"></span></div>
+</div>
+<div style="margin-bottom:1.5rem">
+<strong>Descrição:</strong>
+<p id="modalDesc" style="margin-top:.5rem;padding:1rem;background:var(--bg);border-radius:10px"></p>
+</div>
+<div class="admin-only hide" style="background:var(--bg-card);padding:1.5rem;border-radius:12px;border:2px solid var(--brd)">
+<h3 style="color:var(--p);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem">
+<i class="fas fa-cog"></i> Gerenciar Chamado
+</h3>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem">
+<div>
+<label style="display:block;margin-bottom:.5rem;font-weight:600;font-size:.9rem">Status:</label>
+<select id="novoStatus" style="width:100%;padding:.75rem;border:2px solid var(--brd);border-radius:10px;font-size:1rem;background:var(--bg-card);color:var(--txt)">
+<option value="aberto">Aberto</option>
+<option value="em-andamento">Em Andamento</option>
+<option value="resolvido">Resolvido</option>
+<option value="fechado">Fechado</option>
+</select>
+</div>
+<div>
+<label style="display:block;margin-bottom:.5rem;font-weight:600;font-size:.9rem">Prioridade:</label>
+<select id="novaPrioridade" style="width:100%;padding:.75rem;border:2px solid var(--brd);border-radius:10px;font-size:1rem;background:var(--bg-card);color:var(--txt)">
+<option value="Baixa">🟢 Baixa</option>
+<option value="Média">🟡 Média</option>
+<option value="Alta">🟠 Alta</option>
+<option value="Urgente">🔴 Urgente</option>
+</select>
+</div>
+</div>
+<button class="btn btn-p" style="width:100%" onclick="atualizarChamado()">
+<i class="fas fa-save"></i> Salvar Alterações
+</button>
+</div>
+<div class="chat">
+<h3 style="margin-bottom:1rem"><i class="fas fa-comments"></i> Chat</h3>
+<div class="chat-msgs" id="chatMsgs"></div>
+<div class="chat-input">
+<textarea id="chatInput" rows="2" placeholder="Digite sua mensagem..."></textarea>
+<button class="btn btn-p" onclick="enviarMsg()"><i class="fas fa-paper-plane"></i></button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Modal Usuário -->
+<div id="modalUsuario" class="modal">
+<div class="modal-content">
+<div class="modal-header">
+<h2 id="tituloModalUsuario">Novo Usuário</h2>
+<button class="btn-close" onclick="fecharModalUsuario()"><i class="fas fa-times"></i></button>
+</div>
+<div class="modal-body">
+<form id="formUsuario">
+<input type="hidden" id="usuarioId">
+<div class="fg">
+<label>Nome Completo *</label>
+<input type="text" id="usuarioNome" required>
+</div>
+<div class="fg">
+<label>Email *</label>
+<input type="email" id="usuarioEmail" required>
+</div>
+<div class="fg">
+<label>Senha *</label>
+<input type="password" id="usuarioSenha" required>
+</div>
+<div class="fg">
+<label>Tipo *</label>
+<select id="usuarioTipo" required>
+<option value="user">Usuário</option>
+<option value="admin">Administrador</option>
+</select>
+</div>
+<button type="submit" class="btn btn-p"><i class="fas fa-save"></i> Salvar</button>
+</form>
+</div>
+</div>
+</div>
+
+<script>
+// Sistema de Chamados - Fundação Uniselva
+let user=null,chamados=[],msgs={},currentId=null,usuarios=[],periodoRel='semanal';
+
+// Aguardar DOM carregar
+document.addEventListener('DOMContentLoaded',function(){
+console.log('Sistema iniciando...');
+
+// Carregar dados
+function load(){
+usuarios=JSON.parse(localStorage.getItem('usuarios'))||[
+{id:1,nome:'Administrador',email:'admin@uniselva.org',senha:'admin123',tipo:'admin'},
+{id:2,nome:'João Silva',email:'joao@uniselva.org',senha:'user123',tipo:'user'}
+];
+chamados=JSON.parse(localStorage.getItem('chamados'))||[];
+msgs=JSON.parse(localStorage.getItem('msgs'))||{};
+
+// Adicionar chamados de exemplo se não houver nenhum
+if(chamados.length===0){
+const hoje=new Date();
+const exemplos=[
+{id:1001,titulo:'Computador não liga',categoria:'Hardware',prioridade:'Alta',descricao:'O computador da sala 5 não está ligando',status:'aberto',solicitante:'João Silva',solicitanteId:2,data:new Date(hoje.getTime()-5*24*60*60*1000).toISOString()},
+{id:1002,titulo:'Impressora com problema',categoria:'Impressora',prioridade:'Média',descricao:'Impressora não está imprimindo',status:'em-andamento',solicitante:'Maria Santos',solicitanteId:2,data:new Date(hoje.getTime()-3*24*60*60*1000).toISOString()},
+{id:1003,titulo:'Internet lenta',categoria:'Rede',prioridade:'Baixa',descricao:'Internet está muito lenta no setor administrativo',status:'resolvido',solicitante:'Pedro Costa',solicitanteId:2,data:new Date(hoje.getTime()-10*24*60*60*1000).toISOString(),dataAtualizacao:new Date(hoje.getTime()-8*24*60*60*1000).toISOString()},
+{id:1004,titulo:'Email não funciona',categoria:'Email',prioridade:'Urgente',descricao:'Não consigo acessar meu email',status:'aberto',solicitante:'Ana Lima',solicitanteId:2,data:new Date(hoje.getTime()-1*24*60*60*1000).toISOString()},
+{id:1005,titulo:'Software travando',categoria:'Software',prioridade:'Alta',descricao:'O sistema está travando constantemente',status:'em-andamento',solicitante:'Carlos Souza',solicitanteId:2,data:new Date(hoje.getTime()-7*24*60*60*1000).toISOString()},
+{id:1006,titulo:'Telefone sem sinal',categoria:'Telefonia',prioridade:'Média',descricao:'Ramal 205 sem sinal',status:'fechado',solicitante:'Lucia Ferreira',solicitanteId:2,data:new Date(hoje.getTime()-15*24*60*60*1000).toISOString(),dataAtualizacao:new Date(hoje.getTime()-12*24*60*60*1000).toISOString()}
+];
+chamados=exemplos;
+save();
+}
+}
+
+// Salvar dados
+function save(){
+localStorage.setItem('usuarios',JSON.stringify(usuarios));
+localStorage.setItem('chamados',JSON.stringify(chamados));
+localStorage.setItem('msgs',JSON.stringify(msgs));
+}
+
+// Login
+document.getElementById('formLogin').onsubmit=e=>{
+e.preventDefault();
+const email=document.getElementById('email').value;
+const senha=document.getElementById('senha').value;
+user=usuarios.find(u=>u.email===email&&u.senha===senha);
+if(user){
+localStorage.setItem('user',JSON.stringify(user));
+showDash();
+}else{
+alert('Email ou senha incorretos!');
+}
+};
+
+// Logout
+document.getElementById('btnSair').onclick=()=>{
+user=null;
+localStorage.removeItem('user');
+document.getElementById('login').classList.remove('hide');
+document.getElementById('dash').classList.add('hide');
+};
+
+// Tema
+document.getElementById('btnTema').onclick=()=>{
+const t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+document.documentElement.setAttribute('data-theme',t);
+localStorage.setItem('tema',t);
+};
+
+// Mostrar dashboard
+function showDash(){
+document.getElementById('login').classList.add('hide');
+document.getElementById('dash').classList.remove('hide');
+document.getElementById('nomeUser').textContent=user.nome;
+document.getElementById('tipoUser').textContent=user.tipo==='admin'?'Administrador':'Usuário';
+document.querySelectorAll('.admin-only').forEach(el=>{
+el.classList.toggle('hide',user.tipo!=='admin');
+});
+document.querySelectorAll('.user-only').forEach(el=>{
+el.classList.toggle('hide',user.tipo==='admin');
+});
+document.querySelector('.nav-text').textContent=user.tipo==='admin'?'Todos os Chamados':'Meus Chamados';
+nav(user.tipo==='admin'?'dashboard':'novo');
+}
+
+// Navegação
+document.querySelectorAll('[data-nav]').forEach(btn=>{
+btn.onclick=e=>{
+e.preventDefault();
+nav(btn.dataset.nav);
+};
+});
+
+function nav(tela){
+document.querySelectorAll('.tela').forEach(t=>t.classList.remove('active'));
+document.getElementById('tela-'+tela).classList.add('active');
+document.querySelectorAll('[data-nav]').forEach(b=>{
+b.classList.toggle('active',b.dataset.nav===tela);
+});
+if(tela==='historico')loadHist();
+
+if(tela==='relatorios')loadRel();
+if(tela==='usuarios')loadUsers();
+}
+
+// Criar chamado
+document.getElementById('formChamado').onsubmit=e=>{
+e.preventDefault();
+const c={
+id:Date.now(),
+titulo:document.getElementById('titulo').value,
+categoria:document.getElementById('categoria').value,
+prioridade:'Média',
+descricao:document.getElementById('descricao').value,
+status:'aberto',
+solicitante:user.nome,
+solicitanteId:user.id,
+data:new Date().toISOString()
+};
+chamados.unshift(c);
+save();
+document.getElementById('formChamado').reset();
+notif('Chamado #'+c.id+' criado com sucesso!','ok');
+setTimeout(()=>nav('historico'),1500);
+};
+
+// Carregar histórico
+function loadHist(){
+const lista=user.tipo==='admin'?chamados:chamados.filter(c=>c.solicitanteId===user.id);
+document.getElementById('tituloHistorico').textContent=user.tipo==='admin'?'Todos os Chamados':'Meus Chamados';
+const html=lista.length?lista.map(c=>`
+<div class="chamado" onclick="openModal(${c.id})">
+<h3>${c.titulo} <span class="badge badge-${c.status}">${c.status}</span></h3>
+<div class="chamado-info">
+<span><i class="fas fa-tag"></i> ${c.categoria}</span>
+<span><i class="fas fa-flag"></i> ${c.prioridade}</span>
+<span><i class="fas fa-user"></i> ${c.solicitante}</span>
+<span><i class="fas fa-calendar"></i> ${new Date(c.data).toLocaleDateString('pt-BR')}</span>
+</div>
+</div>
+`).join(''):'<p style="text-align:center;padding:2rem;color:#999">Nenhum chamado encontrado</p>';
+document.getElementById('listaChamados').innerHTML=html;
+}
+
+// Abrir modal
+window.openModal=function(id){
+const c=chamados.find(x=>x.id===id);
+if(!c)return;
+currentId=id;
+document.getElementById('modalTitulo').textContent=c.titulo;
+document.getElementById('modalId').textContent='#'+c.id;
+document.getElementById('modalStatus').textContent=c.status;
+document.getElementById('modalStatus').className='badge badge-'+c.status;
+document.getElementById('modalCat').textContent=c.categoria;
+document.getElementById('modalPrio').textContent=c.prioridade;
+document.getElementById('modalSolic').textContent=c.solicitante;
+document.getElementById('modalData').textContent=new Date(c.data).toLocaleString('pt-BR');
+document.getElementById('modalDesc').textContent=c.descricao;
+document.getElementById('novoStatus').value=c.status;
+document.getElementById('novaPrioridade').value=c.prioridade;
+loadChat(id);
+document.getElementById('modal').classList.add('show');
+}
+
+window.fecharModal=function(){
+document.getElementById('modal').classList.remove('show');
+currentId=null;
+}
+
+// Chat
+function loadChat(id){
+const m=msgs[id]||[];
+const html=m.length?m.map(x=>`
+<div class="msg ${x.tipo}">
+<strong>${x.autor}</strong>
+<p>${x.texto}</p>
+<small>${new Date(x.data).toLocaleString('pt-BR')}</small>
+</div>
+`).join(''):'<p style="text-align:center;color:#999">Nenhuma mensagem</p>';
+document.getElementById('chatMsgs').innerHTML=html;
+document.getElementById('chatMsgs').scrollTop=999999;
+}
+
+window.enviarMsg=function(){
+const txt=document.getElementById('chatInput').value.trim();
+if(!txt||!currentId)return;
+if(!msgs[currentId])msgs[currentId]=[];
+msgs[currentId].push({
+autor:user.nome,
+tipo:user.tipo==='admin'?'admin':'user',
+texto:txt,
+data:new Date().toISOString()
+});
+save();
+loadChat(currentId);
+document.getElementById('chatInput').value='';
+}
+
+// Atualizar chamado (status e prioridade)
+window.atualizarChamado=function(){
+if(!currentId)return;
+const c=chamados.find(x=>x.id===currentId);
+if(c){
+const oldStatus=c.status;
+const oldPrioridade=c.prioridade;
+const newStatus=document.getElementById('novoStatus').value;
+const newPrioridade=document.getElementById('novaPrioridade').value;
+let mudancas=[];
+if(oldStatus!==newStatus){
+c.status=newStatus;
+mudancas.push(`Status: "${oldStatus}" → "${newStatus}"`);
+}
+if(oldPrioridade!==newPrioridade){
+c.prioridade=newPrioridade;
+mudancas.push(`Prioridade: "${oldPrioridade}" → "${newPrioridade}"`);
+}
+if(mudancas.length>0){
+c.dataAtualizacao=new Date().toISOString();
+save();
+if(!msgs[currentId])msgs[currentId]=[];
+msgs[currentId].push({
+autor:'Sistema',
+tipo:'admin',
+texto:`Alterações por ${user.nome}:\n${mudancas.join('\n')}`,
+data:new Date().toISOString()
+});
+save();
+notif('Chamado atualizado com sucesso!','ok');
+loadChat(currentId);
+loadHist();
+openModal(currentId);
+}else{
+notif('Nenhuma alteração foi feita','err');
+}
+}
+}
+
+// Manter função antiga para compatibilidade
+function atualizarStatus(){
+atualizarChamado();
+}
+
+// Dashboard
+function loadDash(){
+document.getElementById('statTotal').textContent=chamados.length;
+document.getElementById('statAbertos').textContent=chamados.filter(c=>c.status==='aberto').length;
+document.getElementById('statResolvidos').textContent=chamados.filter(c=>c.status==='resolvido').length;
+document.getElementById('statUrgentes').textContent=chamados.filter(c=>c.prioridade==='Urgente').length;
+
+const ctx=document.getElementById('chartStatus');
+if(!ctx){console.error('chartStatus não encontrado');return;}
+if(window.chartStatus&&typeof window.chartStatus.destroy==='function'){
+try{window.chartStatus.destroy();}catch(e){console.log('Erro ao destruir gráfico:',e);}
+}
+window.chartStatus=new Chart(ctx,{
+type:'doughnut',
+data:{
+labels:['Aberto','Em Andamento','Resolvido','Fechado'],
+datasets:[{
+data:[
+chamados.filter(c=>c.status==='aberto').length,
+chamados.filter(c=>c.status==='em-andamento').length,
+chamados.filter(c=>c.status==='resolvido').length,
+chamados.filter(c=>c.status==='fechado').length
+],
+backgroundColor:['#3b82f6','#f59e0b','#10b981','#6b7280']
+}]
+},
+options:{responsive:true,maintainAspectRatio:false}
+});
+}
+
+// Relatórios
+function loadRel(){
+console.log('Carregando relatórios...');
+console.log('Chamados disponíveis:', chamados.length);
+if(typeof Chart==='undefined'){
+console.error('Chart.js não carregado!');
+alert('Erro: Chart.js não carregado. Verifique sua conexão com a internet.');
+return;
+}
+
+// Aguardar um pouco para garantir que os elementos estão no DOM
+setTimeout(()=>{
+console.log('Iniciando renderização dos gráficos...');
+const hoje=new Date();
+let dataInicio;
+if(periodoRel==='semanal')dataInicio=new Date(hoje.getTime()-7*24*60*60*1000);
+else if(periodoRel==='mensal')dataInicio=new Date(hoje.getTime()-30*24*60*60*1000);
+else dataInicio=new Date(hoje.getTime()-365*24*60*60*1000);
+
+const chamadosPeriodo=chamados.filter(c=>new Date(c.data)>=dataInicio);
+const resolvidos=chamadosPeriodo.filter(c=>c.status==='resolvido'||c.status==='fechado');
+const tempoMedio=resolvidos.length?resolvidos.reduce((acc,c)=>{
+const diff=new Date(c.dataAtualizacao||c.data)-new Date(c.data);
+return acc+(diff/(1000*60*60*24));
+},0)/resolvidos.length:0;
+const taxa=chamadosPeriodo.length?(resolvidos.length/chamadosPeriodo.length*100).toFixed(1):0;
+
+// Atualizar estatísticas
+const elTotal=document.getElementById('relTotal');
+const elResolvidos=document.getElementById('relResolvidos');
+const elTempo=document.getElementById('relTempo');
+const elTaxa=document.getElementById('relTaxa');
+
+if(elTotal)elTotal.textContent=chamadosPeriodo.length;
+if(elResolvidos)elResolvidos.textContent=resolvidos.length;
+if(elTempo)elTempo.textContent=tempoMedio.toFixed(1);
+if(elTaxa)elTaxa.textContent=taxa+'%';
+
+console.log('Estatísticas atualizadas');
+
+// Gráfico de Categorias
+const cats={};
+if(chamadosPeriodo.length>0){
+chamadosPeriodo.forEach(c=>{cats[c.categoria]=(cats[c.categoria]||0)+1;});
+}else{
+// Dados de exemplo se não houver chamados
+cats['Hardware']=0;
+cats['Software']=0;
+cats['Rede']=0;
+}
+const ctxCat=document.getElementById('chartCat');
+if(!ctxCat){console.error('chartCat não encontrado');return;}
+if(window.chartCat&&typeof window.chartCat.destroy==='function'){
+try{window.chartCat.destroy();}catch(e){console.log('Erro ao destruir chartCat:',e);}
+}
+window.chartCat=new Chart(ctxCat,{
+type:'bar',
+data:{
+labels:Object.keys(cats),
+datasets:[{
+label:'Quantidade',
+data:Object.values(cats),
+backgroundColor:'#2c5f8d',
+borderRadius:8,
+borderWidth:2,
+borderColor:'#1e4363'
+}]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{
+legend:{display:true,position:'top'},
+tooltip:{backgroundColor:'rgba(0,0,0,0.8)',padding:12,titleFont:{size:14},bodyFont:{size:13}}
+},
+scales:{
+y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'rgba(0,0,0,0.05)'}},
+x:{grid:{display:false}}
+}
+}
+});
+console.log('Gráfico de categorias criado');
+
+// Gráfico de Prioridades
+const prios={};
+if(chamadosPeriodo.length>0){
+chamadosPeriodo.forEach(c=>{prios[c.prioridade]=(prios[c.prioridade]||0)+1;});
+}else{
+prios['Baixa']=0;
+prios['Média']=0;
+prios['Alta']=0;
+prios['Urgente']=0;
+}
+const ctxPrio=document.getElementById('chartPrio');
+if(!ctxPrio){console.error('chartPrio não encontrado');return;}
+if(window.chartPrio&&typeof window.chartPrio.destroy==='function'){
+try{window.chartPrio.destroy();}catch(e){console.log('Erro ao destruir chartPrio:',e);}
+}
+window.chartPrio=new Chart(ctxPrio,{
+type:'doughnut',
+data:{
+labels:Object.keys(prios),
+datasets:[{
+data:Object.values(prios),
+backgroundColor:['#10b981','#f59e0b','#ef4444','#8b5cf6'],
+borderWidth:3,
+borderColor:'#fff'
+}]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{
+legend:{position:'bottom',labels:{padding:15,font:{size:12}}},
+tooltip:{backgroundColor:'rgba(0,0,0,0.8)',padding:12}
+}
+}
+});
+console.log('Gráfico de prioridades criado');
+
+// Gráfico de Status
+const stats={};
+if(chamadosPeriodo.length>0){
+chamadosPeriodo.forEach(c=>{stats[c.status]=(stats[c.status]||0)+1;});
+}
+const ctxStatus=document.getElementById('chartStatusRel');
+if(!ctxStatus){console.error('chartStatusRel não encontrado');return;}
+if(window.chartStatusRel&&typeof window.chartStatusRel.destroy==='function'){
+try{window.chartStatusRel.destroy();}catch(e){console.log('Erro ao destruir chartStatusRel:',e);}
+}
+window.chartStatusRel=new Chart(ctxStatus,{
+type:'pie',
+data:{
+labels:['Aberto','Em Andamento','Resolvido','Fechado'],
+datasets:[{
+data:[
+stats['aberto']||0,
+stats['em-andamento']||0,
+stats['resolvido']||0,
+stats['fechado']||0
+],
+backgroundColor:['#3b82f6','#f59e0b','#10b981','#6b7280'],
+borderWidth:3,
+borderColor:'#fff'
+}]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{
+legend:{position:'bottom',labels:{padding:15,font:{size:12}}},
+tooltip:{backgroundColor:'rgba(0,0,0,0.8)',padding:12}
+}
+}
+});
+console.log('Gráfico de status criado');
+
+// Gráfico de Evolução Mensal
+const meses={};
+for(let i=11;i>=0;i--){
+const d=new Date(hoje.getFullYear(),hoje.getMonth()-i,1);
+const k=`${d.getMonth()+1}/${d.getFullYear()}`;
+meses[k]=0;
+}
+chamados.forEach(c=>{
+const d=new Date(c.data);
+const k=`${d.getMonth()+1}/${d.getFullYear()}`;
+if(meses.hasOwnProperty(k))meses[k]++;
+});
+const ctxMensal=document.getElementById('chartMensal');
+if(!ctxMensal){console.error('chartMensal não encontrado');return;}
+if(window.chartMensal&&typeof window.chartMensal.destroy==='function'){
+try{window.chartMensal.destroy();}catch(e){console.log('Erro ao destruir chartMensal:',e);}
+}
+window.chartMensal=new Chart(ctxMensal,{
+type:'line',
+data:{
+labels:Object.keys(meses),
+datasets:[{
+label:'Chamados por Mês',
+data:Object.values(meses),
+borderColor:'#2c5f8d',
+backgroundColor:'rgba(44,95,141,0.1)',
+tension:0.4,
+fill:true,
+borderWidth:3,
+pointRadius:5,
+pointHoverRadius:7,
+pointBackgroundColor:'#2c5f8d',
+pointBorderColor:'#fff',
+pointBorderWidth:2
+}]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{
+legend:{display:true,position:'top'},
+tooltip:{backgroundColor:'rgba(0,0,0,0.8)',padding:12}
+},
+scales:{
+y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'rgba(0,0,0,0.05)'}},
+x:{grid:{display:false}}
+}
+}
+});
+console.log('Gráfico mensal criado');
+console.log('Relatórios carregados com sucesso!');
+},200);
+}
+
+document.querySelectorAll('.periodo-btn').forEach(btn=>{
+btn.onclick=()=>{
+document.querySelectorAll('.periodo-btn').forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
+periodoRel=btn.dataset.periodo;
+loadRel();
+};
+});
+
+// Exportar PDF
+document.getElementById('btnPDF').onclick=()=>{
+const{jsPDF}=window.jspdf;
+const doc=new jsPDF();
+doc.setFontSize(22);
+doc.setTextColor(44,95,141);
+doc.text('Relatório de Chamados',20,20);
+doc.setFontSize(12);
+doc.setTextColor(0,0,0);
+doc.text('Fundação Uniselva - NPD',20,30);
+doc.text('Período: '+periodoRel.charAt(0).toUpperCase()+periodoRel.slice(1),20,37);
+doc.text('Gerado em: '+new Date().toLocaleString('pt-BR'),20,44);
+doc.text('Por: '+user.nome,20,51);
+doc.setLineWidth(0.5);
+doc.line(20,56,190,56);
+let y=65;
+doc.setFontSize(14);
+doc.text('Estatísticas',20,y);y+=10;
+doc.setFontSize(10);
+doc.text('Total: '+document.getElementById('relTotal').textContent,30,y);y+=7;
+doc.text('Resolvidos: '+document.getElementById('relResolvidos').textContent,30,y);y+=7;
+doc.text('Tempo Médio: '+document.getElementById('relTempo').textContent+' dias',30,y);y+=7;
+doc.text('Taxa de Resolução: '+document.getElementById('relTaxa').textContent,30,y);y+=10;
+doc.setFontSize(14);
+doc.text('Últimos 10 Chamados',20,y);y+=10;
+doc.setFontSize(9);
+chamados.slice(0,10).forEach(c=>{
+if(y>270){doc.addPage();y=20;}
+doc.text(`#${c.id} - ${c.titulo}`,25,y);y+=5;
+doc.text(`Status: ${c.status} | Prioridade: ${c.prioridade} | Categoria: ${c.categoria}`,25,y);y+=8;
+});
+doc.save('relatorio-'+Date.now()+'.pdf');
+notif('PDF exportado!','ok');
+};
+
+// Usuários
+function loadUsers(){
+const html=usuarios.map(u=>`
+<div class="card" style="margin-bottom:1rem">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div style="display:flex;align-items:center;gap:1rem">
+<div class="avatar"><i class="fas fa-user"></i></div>
+<div>
+<h3 style="margin-bottom:0.25rem">${u.nome}</h3>
+<p style="color:#999;font-size:0.9rem">${u.email}</p>
+<span class="badge badge-${u.tipo==='admin'?'resolvido':'aberto'}">${u.tipo==='admin'?'Administrador':'Usuário'}</span>
+</div>
+</div>
+<div style="display:flex;gap:0.5rem">
+<button class="btn btn-s" onclick="editarUsuario(${u.id})"><i class="fas fa-edit"></i></button>
+<button class="btn" style="background:var(--err);color:#fff" onclick="excluirUsuario(${u.id})"><i class="fas fa-trash"></i></button>
+</div>
+</div>
+</div>
+`).join('');
+document.getElementById('listaUsuarios').innerHTML=html;
+}
+
+window.abrirModalUsuario=function(){
+document.getElementById('tituloModalUsuario').textContent='Novo Usuário';
+document.getElementById('formUsuario').reset();
+document.getElementById('usuarioId').value='';
+document.getElementById('modalUsuario').classList.add('show');
+}
+
+window.fecharModalUsuario=function(){
+document.getElementById('modalUsuario').classList.remove('show');
+}
+
+window.editarUsuario=function(id){
+const u=usuarios.find(x=>x.id===id);
+if(!u)return;
+document.getElementById('tituloModalUsuario').textContent='Editar Usuário';
+document.getElementById('usuarioId').value=u.id;
+document.getElementById('usuarioNome').value=u.nome;
+document.getElementById('usuarioEmail').value=u.email;
+document.getElementById('usuarioSenha').value=u.senha;
+document.getElementById('usuarioTipo').value=u.tipo;
+document.getElementById('modalUsuario').classList.add('show');
+}
+
+window.excluirUsuario=function(id){
+if(id===user.id){
+notif('Você não pode excluir seu próprio usuário!','err');
+return;
+}
+if(confirm('Tem certeza que deseja excluir este usuário?')){
+usuarios=usuarios.filter(u=>u.id!==id);
+save();
+loadUsers();
+notif('Usuário excluído!','ok');
+}
+}
+
+document.getElementById('formUsuario').onsubmit=e=>{
+e.preventDefault();
+const id=document.getElementById('usuarioId').value;
+const dados={
+nome:document.getElementById('usuarioNome').value,
+email:document.getElementById('usuarioEmail').value,
+senha:document.getElementById('usuarioSenha').value,
+tipo:document.getElementById('usuarioTipo').value
+};
+if(id){
+const u=usuarios.find(x=>x.id==id);
+if(u){
+u.nome=dados.nome;
+u.email=dados.email;
+u.senha=dados.senha;
+u.tipo=dados.tipo;
+notif('Usuário atualizado!','ok');
+}
+}else{
+usuarios.push({id:Date.now(),...dados});
+notif('Usuário criado!','ok');
+}
+save();
+fecharModalUsuario();
+loadUsers();
+};
+
+// Notificação
+function notif(txt,tipo){
+const n=document.createElement('div');
+n.className='notif notif-'+tipo;
+n.textContent=txt;
+document.body.appendChild(n);
+setTimeout(()=>n.classList.add('show'),100);
+setTimeout(()=>{
+n.classList.remove('show');
+setTimeout(()=>n.remove(),300);
+},3000);
+}
+
+// Inicializar
+load();
+const savedUser=localStorage.getItem('user');
+if(savedUser){
+user=JSON.parse(savedUser);
+showDash();
+}
+const savedTema=localStorage.getItem('tema');
+if(savedTema)document.documentElement.setAttribute('data-theme',savedTema);
+
+console.log('Sistema carregado com sucesso!');
+}); // Fim DOMContentLoaded
+</script>
+</body>
+</html>

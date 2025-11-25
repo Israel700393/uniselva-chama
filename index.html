@@ -52,8 +52,8 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
 .btn-p{background:var(--p);color:#fff;width:100%}
 .btn-p:hover{background:var(--pd)}
 .btn-s{background:var(--s);color:var(--txt)}
-#dash{display:flex;min-height:100vh}
-.side{width:280px;background:var(--bg);border-right:1px solid var(--brd);display:flex;flex-direction:column}
+#dash{display:flex;height:100vh;overflow:hidden}
+.side{width:280px;background:var(--bg);border-right:1px solid var(--brd);display:flex;flex-direction:column;height:100vh;position:fixed;left:0;top:0;z-index:100;box-shadow:2px 0 8px var(--shadow)}
 .side-h{padding:1.5rem;border-bottom:1px solid var(--brd);text-align:center}
 .side-h h2{color:var(--p);font-size:1.3rem}
 .nav{flex:1;padding:1rem 0}
@@ -62,7 +62,11 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
 .side-f{padding:1.5rem;border-top:1px solid var(--brd)}
 .user{display:flex;align-items:center;gap:1rem;margin-bottom:1rem}
 .avatar{width:45px;height:45px;border-radius:50%;background:var(--p);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.2rem}
-.main{flex:1;padding:2rem}
+.main{flex:1;padding:2rem;margin-left:280px;height:100vh;overflow-y:auto;overflow-x:hidden;scroll-behavior:smooth}
+.main::-webkit-scrollbar{width:10px}
+.main::-webkit-scrollbar-track{background:var(--bg)}
+.main::-webkit-scrollbar-thumb{background:var(--brd);border-radius:5px}
+.main::-webkit-scrollbar-thumb:hover{background:var(--p)}
 .tela{display:none}
 .tela.active{display:block}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;margin-bottom:2rem}
@@ -96,24 +100,28 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
 .modal-header{padding:1.5rem 2rem;border-bottom:1px solid var(--brd);display:flex;justify-content:space-between;align-items:center}
 .modal-body{padding:2rem}
 .btn-close{width:35px;height:35px;border-radius:50%;border:none;background:var(--err);color:#fff;cursor:pointer;font-size:1.2rem}
-.chat{background:var(--bg);padding:2rem;border-radius:15px;margin-top:1.5rem;border:2px solid var(--brd)}
-.chat h3{color:var(--p);margin-bottom:1.5rem;display:flex;align-items:center;gap:.75rem;font-size:1.3rem;font-weight:700}
-.chat-msgs{max-height:500px;overflow-y:auto;margin-bottom:1.5rem;padding:1.5rem;background:var(--bg-card);border-radius:12px;border:2px solid var(--brd);scroll-behavior:smooth}
+.chat{background:var(--bg);padding:1rem;border-radius:12px;margin-top:1rem;border:1px solid var(--brd)}
+.chat h3{color:var(--p);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;font-size:1.1rem;font-weight:600}
+.chat-msgs{max-height:350px;overflow-y:auto;margin-bottom:1rem;padding:1rem;background:var(--bg-card);border-radius:8px;border:1px solid var(--brd);scroll-behavior:smooth}
 .chat-msgs::-webkit-scrollbar{width:8px}
 .chat-msgs::-webkit-scrollbar-track{background:var(--bg);border-radius:10px}
 .chat-msgs::-webkit-scrollbar-thumb{background:var(--brd);border-radius:10px}
 .chat-msgs::-webkit-scrollbar-thumb:hover{background:var(--p)}
-.msg{margin-bottom:1.25rem;padding:1.5rem;border-radius:15px;max-width:75%;animation:slideIn .3s ease;word-wrap:break-word}
+.msg{margin-bottom:0.75rem;padding:0.875rem 1rem;border-radius:10px;max-width:75%;animation:slideIn .3s ease;word-wrap:break-word}
 @keyframes slideIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeInScale{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+@keyframes starPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+@keyframes confetti{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(-100px) rotate(360deg);opacity:0}}
+@keyframes btnPulse{0%,100%{box-shadow:0 4px 12px rgba(16,185,129,0.3)}50%{box-shadow:0 4px 20px rgba(16,185,129,0.6)}}
 .msg.user{background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;margin-left:auto;box-shadow:0 4px 12px rgba(44,95,141,.3)}
 .msg.admin{background:var(--s);color:var(--txt);box-shadow:0 2px 8px var(--shadow)}
-.msg strong{display:block;margin-bottom:.75rem;font-size:1rem;font-weight:700;opacity:.95}
-.msg p{margin:.5rem 0;line-height:1.6;font-size:1rem;white-space:pre-wrap}
-.msg small{display:block;margin-top:.75rem;font-size:.85rem;opacity:.75;font-style:italic}
-.chat-input{display:flex;gap:1rem;align-items:flex-end;background:var(--bg-card);padding:1.5rem;border-radius:12px;border:2px solid var(--brd);flex-direction:column}
-.chat-input textarea{color:#fff;width:100%;padding:1.5rem;border:3px solid var(--brd);border-radius:15px;resize:vertical;min-height:120px;max-height:300px;font-size:1.1rem;font-family:inherit;line-height:1.7;transition:.3s;background:var(--bg);font-weight:500}
+.msg strong{display:block;margin-bottom:.4rem;font-size:0.85rem;font-weight:600;opacity:.9}
+.msg p{margin:.3rem 0;line-height:1.5;font-size:0.9rem;white-space:pre-wrap}
+.msg small{display:block;margin-top:.4rem;font-size:.75rem;opacity:.7;font-style:italic}
+.chat-input{display:flex;gap:0.75rem;align-items:flex-end;background:var(--bg-card);padding:1rem;border-radius:8px;border:1px solid var(--brd);flex-direction:column}
+.chat-input textarea{width:100%;padding:0.875rem;border:2px solid var(--brd);border-radius:8px;resize:vertical;min-height:70px;max-height:180px;font-size:0.95rem;font-family:inherit;line-height:1.5;transition:.3s;background:var(--bg);color:var(--txt)}
 .chat-input textarea:focus{border-color:var(--p);box-shadow:0 0 0 4px rgba(44,95,141,.15);outline:none}
-.chat-input .btn{padding:1.25rem 2rem;height:fit-content;width:100%;justify-content:center;font-size:1.05rem;font-weight:700;box-shadow:0 2px 8px var(--shadow)}
+.chat-input .btn{padding:0.75rem 1.5rem;height:fit-content;width:100%;justify-content:center;font-size:0.95rem;font-weight:600;box-shadow:0 2px 6px var(--shadow)}
 .chat-input .btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px var(--shadow-hover)}
 .periodo-btn{transition:.3s}
 .periodo-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px var(--shadow-hover)}
@@ -124,7 +132,37 @@ body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:v
 .notif-err{background:#fee2e2;color:#991b1b;border-left:4px solid var(--err)}
 [data-theme="dark"] .notif-ok{background:#064e3b;color:#d1fae5}
 [data-theme="dark"] .notif-err{background:#7f1d1d;color:#fee2e2}
-@media(max-width:768px){#dash{flex-direction:column}.side{width:100%;height:auto}.main{padding:1rem}.stats{grid-template-columns:1fr}}
+.rating{display:flex;gap:0.5rem;align-items:center;justify-content:center;margin:1rem 0}
+.rating i{font-size:2rem;color:#d1d5db;cursor:pointer;transition:.3s;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.1))}
+.rating i:hover{color:#fbbf24;transform:scale(1.2);filter:drop-shadow(0 4px 8px rgba(251,191,36,0.4))}
+.rating i.active{color:#fbbf24;animation:starPulse .5s ease}
+.avaliacao-box{background:linear-gradient(135deg,rgba(44,95,141,0.05),rgba(212,197,185,0.05));padding:2rem;border-radius:16px;border:2px solid var(--brd);margin-top:1rem;animation:fadeInScale .5s ease;box-shadow:0 8px 24px var(--shadow)}
+.avaliacao-box h4{color:var(--p);margin-bottom:1.5rem;display:flex;align-items:center;justify-content:center;gap:0.5rem;font-size:1.2rem;font-weight:700}
+.avaliacao-success{text-align:center;padding:2rem;animation:fadeInScale .5s ease}
+.avaliacao-success i{font-size:4rem;color:#10b981;margin-bottom:1rem;animation:starPulse 1s ease}
+.confetti{position:absolute;width:10px;height:10px;background:#fbbf24;animation:confetti 2s ease-out forwards}
+.btn-encerrar{background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;padding:1rem 1.5rem;border-radius:10px;font-weight:700;cursor:pointer;transition:.3s;display:inline-flex;align-items:center;justify-content:center;gap:0.75rem;box-shadow:0 4px 12px rgba(16,185,129,0.3);font-size:1rem;animation:btnPulse 2s infinite}
+.btn-encerrar:hover{background:linear-gradient(135deg,#059669,#047857);transform:translateY(-2px);box-shadow:0 6px 16px rgba(16,185,129,0.4);animation:none}
+.btn-encerrar:active{transform:translateY(0);box-shadow:0 2px 8px rgba(16,185,129,0.3)}
+.btn-danger{background:#ef4444;color:#fff}
+.btn-danger:hover{background:#dc2626}
+.chamado-mini{background:var(--bg);padding:0.875rem;border-radius:8px;margin-bottom:0.75rem;border-left:3px solid var(--p);cursor:pointer;transition:.2s}
+.chamado-mini:hover{transform:translateX(3px);box-shadow:0 2px 8px var(--shadow)}
+.chamado-mini h4{font-size:0.9rem;margin-bottom:0.4rem;color:var(--txt)}
+.chamado-mini p{font-size:0.8rem;color:var(--txt-secondary);margin:0}
+.avaliacao-card{background:var(--bg-card);padding:1.5rem;border-radius:12px;box-shadow:0 2px 8px var(--shadow);margin-bottom:1rem;border-left:4px solid #fbbf24;transition:.3s}
+.avaliacao-card:hover{box-shadow:0 4px 12px var(--shadow-hover);transform:translateY(-2px)}
+.avaliacao-header{display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem;flex-wrap:wrap;gap:1rem}
+.avaliacao-stars{color:#fbbf24;font-size:1.2rem;letter-spacing:2px}
+.avaliacao-info{font-size:0.85rem;color:var(--txt-secondary)}
+.avaliacao-comentario{background:var(--bg);padding:1rem;border-radius:8px;margin-top:1rem;font-style:italic;color:var(--txt)}
+.filtro-avaliacao.active{background:var(--p);color:#fff}
+@media(max-width:768px){
+#dash{flex-direction:column;height:auto}
+.side{width:100%;height:auto;position:relative;border-right:none;border-bottom:1px solid var(--brd)}
+.main{margin-left:0;padding:1rem;height:auto}
+.stats{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
@@ -161,9 +199,10 @@ User: joao@uniselva.org / user123
 <nav class="nav">
 <a href="#" data-nav="novo" class="active user-only"><i class="fas fa-plus-circle"></i> Novo Chamado</a>
 <a href="#" data-nav="historico"><i class="fas fa-history"></i> <span class="nav-text">Meus Chamados</span></a>
-<a href="#" data-nav="dashboard" class="admin-only hide"><i class="fas fa-home"></i> Dashboard</a>
+<a href="#" data-nav="avaliacoes" class="admin-only hide"><i class="fas fa-star"></i> Avaliações</a>
 <a href="#" data-nav="relatorios" class="admin-only hide"><i class="fas fa-chart-bar"></i> Relatórios</a>
 <a href="#" data-nav="usuarios" class="admin-only hide"><i class="fas fa-users"></i> Usuários</a>
+<a href="#" data-nav="configuracoes" class="admin-only hide"><i class="fas fa-cog"></i> Configurações</a>
 </nav>
 <div class="side-f">
 <div class="user">
@@ -218,12 +257,110 @@ User: joao@uniselva.org / user123
 </div>
 </div>
 
-<!-- Dashboard -->
-<div id="tela-dashboard" class="tela">
-<div class="stats">
+<!-- Avaliações -->
+<div id="tela-avaliacoes" class="tela">
+<div class="card">
+<h2><i class="fas fa-star"></i> Avaliações dos Atendimentos</h2>
+<div style="display:flex;gap:1rem;margin-bottom:2rem;flex-wrap:wrap">
+<div class="stat" style="flex:1;min-width:200px">
+<div class="stat-icon" style="background:#fbbf24"><i class="fas fa-star"></i></div>
+<div class="stat-info">
+<h3 id="mediaAvaliacoes">0.0</h3>
+<p>Média Geral</p>
+</div>
+</div>
+<div class="stat" style="flex:1;min-width:200px">
+<div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+<div class="stat-info">
+<h3 id="totalAvaliacoes">0</h3>
+<p>Total de Avaliações</p>
+</div>
+</div>
+<div class="stat" style="flex:1;min-width:200px">
+<div class="stat-icon blue"><i class="fas fa-percentage"></i></div>
+<div class="stat-info">
+<h3 id="taxaSatisfacao">0%</h3>
+<p>Satisfação (4-5★)</p>
+</div>
+</div>
+</div>
+<div style="margin-bottom:2rem">
+<label style="display:block;margin-bottom:0.5rem;font-weight:600">Filtrar por nota:</label>
+<div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+<button class="btn btn-s filtro-avaliacao active" data-filtro="todas" style="padding:0.5rem 1rem">
+Todas
+</button>
+<button class="btn btn-s filtro-avaliacao" data-filtro="5" style="padding:0.5rem 1rem">
+⭐⭐⭐⭐⭐ (5)
+</button>
+<button class="btn btn-s filtro-avaliacao" data-filtro="4" style="padding:0.5rem 1rem">
+⭐⭐⭐⭐ (4)
+</button>
+<button class="btn btn-s filtro-avaliacao" data-filtro="3" style="padding:0.5rem 1rem">
+⭐⭐⭐ (3)
+</button>
+<button class="btn btn-s filtro-avaliacao" data-filtro="2" style="padding:0.5rem 1rem">
+⭐⭐ (2)
+</button>
+<button class="btn btn-s filtro-avaliacao" data-filtro="1" style="padding:0.5rem 1rem">
+⭐ (1)
+</button>
+</div>
+</div>
+<div id="listaAvaliacoes"></div>
+</div>
+</div>
+
+<!-- Configurações -->
+<div id="tela-configuracoes" class="tela">
+<div class="card">
+<h2><i class="fas fa-cog"></i> Configurações do Sistema</h2>
+<div style="display:grid;gap:2rem">
+<div>
+<h3 style="color:var(--p);margin-bottom:1rem;font-size:1.1rem"><i class="fas fa-clock"></i> Tempo de Resposta</h3>
+<div class="fg">
+<label>Tempo máximo para primeira resposta (horas)</label>
+<input type="number" id="confTempoResposta" value="24" min="1" max="168">
+</div>
+<div class="fg">
+<label>Tempo máximo para resolução (dias)</label>
+<input type="number" id="confTempoResolucao" value="7" min="1" max="30">
+</div>
+</div>
+<div>
+<h3 style="color:var(--p);margin-bottom:1rem;font-size:1.1rem"><i class="fas fa-bell"></i> Notificações</h3>
+<div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
+<input type="checkbox" id="confNotifEmail" checked style="width:auto">
+<label for="confNotifEmail" style="margin:0">Enviar notificações por email</label>
+</div>
+<div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem">
+<input type="checkbox" id="confNotifNovoChamado" checked style="width:auto">
+<label for="confNotifNovoChamado" style="margin:0">Notificar admin em novos chamados</label>
+</div>
+<div style="display:flex;align-items:center;gap:1rem">
+<input type="checkbox" id="confNotifResposta" checked style="width:auto">
+<label for="confNotifResposta" style="margin:0">Notificar usuário em respostas</label>
+</div>
+</div>
+<div>
+<h3 style="color:var(--p);margin-bottom:1rem;font-size:1.1rem"><i class="fas fa-list"></i> Categorias Personalizadas</h3>
+<div class="fg">
+<label>Categorias disponíveis (uma por linha)</label>
+<textarea id="confCategorias" rows="6" style="width:100%;padding:0.875rem;border:2px solid var(--brd);border-radius:10px;font-family:inherit;background:var(--bg-card);color:var(--txt)">Hardware
+Software
+Rede
+Email
+Impressora
+Telefonia
+Outro</textarea>
+</div>
+</div>
+<div>
+<h3 style="color:var(--p);margin-bottom:1rem;font-size:1.1rem"><i class="fas fa-chart-line"></i> Estatísticas</h3>
+<div class="stats" style="margin:0">
 <div class="stat">
 <div class="stat-icon blue"><i class="fas fa-ticket-alt"></i></div>
-<div class="stat-info"><h3 id="statTotal">0</h3><p>Total</p></div>
+<div class="stat-info"><h3 id="statTotal">0</h3><p>Total de Chamados</p></div>
 </div>
 <div class="stat">
 <div class="stat-icon yellow"><i class="fas fa-clock"></i></div>
@@ -238,9 +375,11 @@ User: joao@uniselva.org / user123
 <div class="stat-info"><h3 id="statUrgentes">0</h3><p>Urgentes</p></div>
 </div>
 </div>
-<div class="card">
-<h2>Chamados por Status</h2>
-<canvas id="chartStatus" height="100"></canvas>
+</div>
+<button class="btn btn-p" onclick="salvarConfiguracoes()">
+<i class="fas fa-save"></i> Salvar Configurações
+</button>
+</div>
 </div>
 </div>
 
@@ -408,6 +547,27 @@ User: joao@uniselva.org / user123
 <textarea id="chatInput" rows="2" placeholder="Digite sua mensagem..."></textarea>
 <button class="btn btn-p" onclick="enviarMsg()"><i class="fas fa-paper-plane"></i></button>
 </div>
+<div id="btnEncerrarContainer" class="user-only hide" style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--brd)">
+<button class="btn-encerrar" style="width:100%" onclick="encerrarChamado()">
+<i class="fas fa-check-circle"></i> Encerrar e Avaliar Atendimento
+</button>
+</div>
+<div id="avaliacaoContainer" class="hide avaliacao-box" style="margin-top:1rem">
+<h4><i class="fas fa-star"></i> Como foi o atendimento?</h4>
+<p style="text-align:center;color:var(--txt-secondary);margin-bottom:1rem;font-size:0.9rem">Sua avaliação nos ajuda a melhorar nossos serviços</p>
+<div class="rating" id="rating">
+<i class="fas fa-star" data-rating="1"></i>
+<i class="fas fa-star" data-rating="2"></i>
+<i class="fas fa-star" data-rating="3"></i>
+<i class="fas fa-star" data-rating="4"></i>
+<i class="fas fa-star" data-rating="5"></i>
+</div>
+<p id="ratingText" style="text-align:center;color:var(--p);font-weight:600;margin-top:0.5rem;min-height:1.5rem"></p>
+<textarea id="comentarioAvaliacao" placeholder="Deixe um comentário sobre o atendimento (opcional)" style="width:100%;padding:1rem;border:2px solid var(--brd);border-radius:10px;margin-top:1rem;min-height:100px;font-family:inherit;background:var(--bg-card);color:var(--txt);font-size:0.95rem"></textarea>
+<button class="btn btn-p" onclick="enviarAvaliacao()" style="margin-top:1rem;width:100%;padding:1rem;font-size:1rem;font-weight:700">
+<i class="fas fa-paper-plane"></i> Enviar Avaliação
+</button>
+</div>
 </div>
 </div>
 </div>
@@ -471,10 +631,14 @@ const hoje=new Date();
 const exemplos=[
 {id:1001,titulo:'Computador não liga',categoria:'Hardware',prioridade:'Alta',descricao:'O computador da sala 5 não está ligando',status:'aberto',solicitante:'João Silva',solicitanteId:2,data:new Date(hoje.getTime()-5*24*60*60*1000).toISOString()},
 {id:1002,titulo:'Impressora com problema',categoria:'Impressora',prioridade:'Média',descricao:'Impressora não está imprimindo',status:'em-andamento',solicitante:'Maria Santos',solicitanteId:2,data:new Date(hoje.getTime()-3*24*60*60*1000).toISOString()},
-{id:1003,titulo:'Internet lenta',categoria:'Rede',prioridade:'Baixa',descricao:'Internet está muito lenta no setor administrativo',status:'resolvido',solicitante:'Pedro Costa',solicitanteId:2,data:new Date(hoje.getTime()-10*24*60*60*1000).toISOString(),dataAtualizacao:new Date(hoje.getTime()-8*24*60*60*1000).toISOString()},
+{id:1003,titulo:'Internet lenta',categoria:'Rede',prioridade:'Baixa',descricao:'Internet está muito lenta no setor administrativo',status:'resolvido',solicitante:'João Silva',solicitanteId:2,data:new Date(hoje.getTime()-10*24*60*60*1000).toISOString(),dataAtualizacao:new Date(hoje.getTime()-8*24*60*60*1000).toISOString()},
 {id:1004,titulo:'Email não funciona',categoria:'Email',prioridade:'Urgente',descricao:'Não consigo acessar meu email',status:'aberto',solicitante:'Ana Lima',solicitanteId:2,data:new Date(hoje.getTime()-1*24*60*60*1000).toISOString()},
 {id:1005,titulo:'Software travando',categoria:'Software',prioridade:'Alta',descricao:'O sistema está travando constantemente',status:'em-andamento',solicitante:'Carlos Souza',solicitanteId:2,data:new Date(hoje.getTime()-7*24*60*60*1000).toISOString()},
-{id:1006,titulo:'Telefone sem sinal',categoria:'Telefonia',prioridade:'Média',descricao:'Ramal 205 sem sinal',status:'fechado',solicitante:'Lucia Ferreira',solicitanteId:2,data:new Date(hoje.getTime()-15*24*60*60*1000).toISOString(),dataAtualizacao:new Date(hoje.getTime()-12*24*60*60*1000).toISOString()}
+{id:1006,titulo:'Telefone sem sinal',categoria:'Telefonia',prioridade:'Média',descricao:'Ramal 205 sem sinal',status:'fechado',solicitante:'Lucia Ferreira',solicitanteId:2,data:new Date(hoje.getTime()-15*24*60*60*1000).toISOString(),dataAtualizacao:new Date(hoje.getTime()-12*24*60*60*1000).toISOString(),avaliacao:{nota:5,comentario:'Excelente atendimento! Problema resolvido rapidamente.',data:new Date(hoje.getTime()-12*24*60*60*1000).toISOString(),usuario:'Lucia Ferreira'}},
+{id:1007,titulo:'Mouse com defeito',categoria:'Hardware',prioridade:'Média',descricao:'O mouse do meu computador está com defeito',status:'resolvido',solicitante:'João Silva',solicitanteId:2,data:new Date(hoje.getTime()-2*24*60*60*1000).toISOString(),dataAtualizacao:new Date(hoje.getTime()-1*24*60*60*1000).toISOString()},
+{id:1008,titulo:'Instalação de software',categoria:'Software',prioridade:'Baixa',descricao:'Preciso instalar um novo software',status:'fechado',solicitante:'Maria Santos',solicitanteId:2,data:new Date(hoje.getTime()-20*24*60*60*1000).toISOString(),dataAtualizacao:new Date(hoje.getTime()-18*24*60*60*1000).toISOString(),avaliacao:{nota:4,comentario:'Bom atendimento, mas demorou um pouco.',data:new Date(hoje.getTime()-18*24*60*60*1000).toISOString(),usuario:'Maria Santos'}},
+{id:1009,titulo:'Backup de dados',categoria:'Outro',prioridade:'Alta',descricao:'Preciso fazer backup urgente',status:'fechado',solicitante:'Pedro Costa',solicitanteId:2,data:new Date(hoje.getTime()-25*24*60*60*1000).toISOString(),dataAtualizacao:new Date(hoje.getTime()-24*24*60*60*1000).toISOString(),avaliacao:{nota:5,comentario:'Perfeito! Equipe muito competente.',data:new Date(hoje.getTime()-24*24*60*60*1000).toISOString(),usuario:'Pedro Costa'}},
+{id:1010,titulo:'Configuração de email',categoria:'Email',prioridade:'Média',descricao:'Email não está sincronizando',status:'fechado',solicitante:'Ana Lima',solicitanteId:2,data:new Date(hoje.getTime()-30*24*60*60*1000).toISOString(),dataAtualizacao:new Date(hoje.getTime()-29*24*60*60*1000).toISOString(),avaliacao:{nota:3,comentario:'Resolveu, mas poderia ter sido mais rápido.',data:new Date(hoje.getTime()-29*24*60*60*1000).toISOString(),usuario:'Ana Lima'}}
 ];
 chamados=exemplos;
 save();
@@ -530,7 +694,7 @@ document.querySelectorAll('.user-only').forEach(el=>{
 el.classList.toggle('hide',user.tipo==='admin');
 });
 document.querySelector('.nav-text').textContent=user.tipo==='admin'?'Todos os Chamados':'Meus Chamados';
-nav(user.tipo==='admin'?'dashboard':'novo');
+nav(user.tipo==='admin'?'historico':'novo');
 }
 
 // Navegação
@@ -548,9 +712,10 @@ document.querySelectorAll('[data-nav]').forEach(b=>{
 b.classList.toggle('active',b.dataset.nav===tela);
 });
 if(tela==='historico')loadHist();
-
+if(tela==='avaliacoes')loadAvaliacoes();
 if(tela==='relatorios')loadRel();
 if(tela==='usuarios')loadUsers();
+if(tela==='configuracoes')loadConfig();
 }
 
 // Criar chamado
@@ -597,6 +762,7 @@ window.openModal=function(id){
 const c=chamados.find(x=>x.id===id);
 if(!c)return;
 currentId=id;
+avaliacaoSelecionada=0;
 document.getElementById('modalTitulo').textContent=c.titulo;
 document.getElementById('modalId').textContent='#'+c.id;
 document.getElementById('modalStatus').textContent=c.status;
@@ -608,6 +774,44 @@ document.getElementById('modalData').textContent=new Date(c.data).toLocaleString
 document.getElementById('modalDesc').textContent=c.descricao;
 document.getElementById('novoStatus').value=c.status;
 document.getElementById('novaPrioridade').value=c.prioridade;
+
+const btnEncerrar=document.getElementById('btnEncerrarContainer');
+const avaliacaoBox=document.getElementById('avaliacaoContainer');
+
+console.log('Debug botão encerrar:',{
+userTipo:user.tipo,
+userId:user.id,
+solicitanteId:c.solicitanteId,
+status:c.status,
+temAvaliacao:!!c.avaliacao
+});
+
+if(user.tipo==='user'&&c.solicitanteId===user.id){
+if(c.status==='fechado'&&!c.avaliacao){
+console.log('Chamado fechado sem avaliação - mostrando formulário de avaliação');
+btnEncerrar.classList.add('hide');
+avaliacaoBox.classList.remove('hide');
+document.getElementById('comentarioAvaliacao').value='';
+document.querySelectorAll('.rating i').forEach(s=>s.classList.remove('active'));
+}else if(c.avaliacao){
+console.log('Já tem avaliação - escondendo tudo');
+btnEncerrar.classList.add('hide');
+avaliacaoBox.classList.add('hide');
+}else if(c.status!=='fechado'){
+console.log('Chamado aberto/em andamento/resolvido - mostrando botão encerrar');
+btnEncerrar.classList.remove('hide');
+avaliacaoBox.classList.add('hide');
+}else{
+console.log('Outro caso - escondendo tudo');
+btnEncerrar.classList.add('hide');
+avaliacaoBox.classList.add('hide');
+}
+}else{
+console.log('Não é o solicitante ou é admin - escondendo');
+btnEncerrar.classList.add('hide');
+avaliacaoBox.classList.add('hide');
+}
+
 loadChat(id);
 document.getElementById('modal').classList.add('show');
 }
@@ -641,9 +845,28 @@ tipo:user.tipo==='admin'?'admin':'user',
 texto:txt,
 data:new Date().toISOString()
 });
+
+const c=chamados.find(x=>x.id===currentId);
+if(c&&user.tipo==='admin'){
+if(c.status==='aberto'){
+c.status='em-andamento';
+c.dataAtualizacao=new Date().toISOString();
+msgs[currentId].push({
+autor:'Sistema',
+tipo:'admin',
+texto:'Status alterado automaticamente para "Em Andamento"',
+data:new Date().toISOString()
+});
+notif('Status alterado para Em Andamento','ok');
+}
+}
+
 save();
 loadChat(currentId);
+loadHist();
 document.getElementById('chatInput').value='';
+document.getElementById('modalStatus').textContent=c?c.status:'';
+document.getElementById('modalStatus').className=c?'badge badge-'+c.status:'badge';
 }
 
 // Atualizar chamado (status e prioridade)
@@ -690,35 +913,7 @@ function atualizarStatus(){
 atualizarChamado();
 }
 
-// Dashboard
-function loadDash(){
-document.getElementById('statTotal').textContent=chamados.length;
-document.getElementById('statAbertos').textContent=chamados.filter(c=>c.status==='aberto').length;
-document.getElementById('statResolvidos').textContent=chamados.filter(c=>c.status==='resolvido').length;
-document.getElementById('statUrgentes').textContent=chamados.filter(c=>c.prioridade==='Urgente').length;
 
-const ctx=document.getElementById('chartStatus');
-if(!ctx){console.error('chartStatus não encontrado');return;}
-if(window.chartStatus&&typeof window.chartStatus.destroy==='function'){
-try{window.chartStatus.destroy();}catch(e){console.log('Erro ao destruir gráfico:',e);}
-}
-window.chartStatus=new Chart(ctx,{
-type:'doughnut',
-data:{
-labels:['Aberto','Em Andamento','Resolvido','Fechado'],
-datasets:[{
-data:[
-chamados.filter(c=>c.status==='aberto').length,
-chamados.filter(c=>c.status==='em-andamento').length,
-chamados.filter(c=>c.status==='resolvido').length,
-chamados.filter(c=>c.status==='fechado').length
-],
-backgroundColor:['#3b82f6','#f59e0b','#10b981','#6b7280']
-}]
-},
-options:{responsive:true,maintainAspectRatio:false}
-});
-}
 
 // Relatórios
 function loadRel(){
@@ -975,6 +1170,72 @@ doc.save('relatorio-'+Date.now()+'.pdf');
 notif('PDF exportado!','ok');
 };
 
+// Avaliações
+let filtroAvaliacaoAtual='todas';
+
+function loadAvaliacoes(){
+const chamadosComAvaliacao=chamados.filter(c=>c.avaliacao);
+const avaliacoesFiltradas=filtroAvaliacaoAtual==='todas'?
+chamadosComAvaliacao:
+chamadosComAvaliacao.filter(c=>c.avaliacao.nota===parseInt(filtroAvaliacaoAtual));
+
+const totalAvaliacoes=chamadosComAvaliacao.length;
+const somaNotas=chamadosComAvaliacao.reduce((acc,c)=>acc+c.avaliacao.nota,0);
+const media=totalAvaliacoes>0?(somaNotas/totalAvaliacoes).toFixed(1):0;
+const satisfeitos=chamadosComAvaliacao.filter(c=>c.avaliacao.nota>=4).length;
+const taxaSat=totalAvaliacoes>0?((satisfeitos/totalAvaliacoes)*100).toFixed(0):0;
+
+document.getElementById('mediaAvaliacoes').textContent=media;
+document.getElementById('totalAvaliacoes').textContent=totalAvaliacoes;
+document.getElementById('taxaSatisfacao').textContent=taxaSat+'%';
+
+const getStars=nota=>'⭐'.repeat(nota);
+
+const html=avaliacoesFiltradas.length?avaliacoesFiltradas.map(c=>`
+<div class="avaliacao-card">
+<div class="avaliacao-header">
+<div>
+<h3 style="margin-bottom:0.5rem;color:var(--txt)">${c.titulo}</h3>
+<div class="avaliacao-stars">${getStars(c.avaliacao.nota)}</div>
+</div>
+<div style="text-align:right">
+<div class="badge badge-${c.status}">${c.status}</div>
+<div class="avaliacao-info" style="margin-top:0.5rem">
+<i class="fas fa-user"></i> ${c.avaliacao.usuario}
+</div>
+<div class="avaliacao-info">
+<i class="fas fa-calendar"></i> ${new Date(c.avaliacao.data).toLocaleDateString('pt-BR')}
+</div>
+</div>
+</div>
+<div class="avaliacao-info">
+<i class="fas fa-ticket-alt"></i> Chamado #${c.id} • 
+<i class="fas fa-folder"></i> ${c.categoria} • 
+<i class="fas fa-user-circle"></i> Solicitante: ${c.solicitante}
+</div>
+${c.avaliacao.comentario?`
+<div class="avaliacao-comentario">
+<i class="fas fa-quote-left" style="opacity:0.5;margin-right:0.5rem"></i>
+${c.avaliacao.comentario}
+<i class="fas fa-quote-right" style="opacity:0.5;margin-left:0.5rem"></i>
+</div>
+`:''}
+</div>
+`).join(''):'<p style="text-align:center;padding:3rem;color:var(--txt-secondary)"><i class="fas fa-inbox" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.3"></i>Nenhuma avaliação encontrada</p>';
+
+document.getElementById('listaAvaliacoes').innerHTML=html;
+}
+
+document.addEventListener('click',e=>{
+if(e.target.closest('.filtro-avaliacao')){
+const btn=e.target.closest('.filtro-avaliacao');
+document.querySelectorAll('.filtro-avaliacao').forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
+filtroAvaliacaoAtual=btn.dataset.filtro;
+loadAvaliacoes();
+}
+});
+
 // Usuários
 function loadUsers(){
 const html=usuarios.map(u=>`
@@ -1083,6 +1344,221 @@ showDash();
 }
 const savedTema=localStorage.getItem('tema');
 if(savedTema)document.documentElement.setAttribute('data-theme',savedTema);
+
+// Configurações
+window.salvarConfiguracoes=function(){
+const config={
+tempoResposta:document.getElementById('confTempoResposta').value,
+tempoResolucao:document.getElementById('confTempoResolucao').value,
+notifEmail:document.getElementById('confNotifEmail').checked,
+notifNovoChamado:document.getElementById('confNotifNovoChamado').checked,
+notifResposta:document.getElementById('confNotifResposta').checked,
+categorias:document.getElementById('confCategorias').value
+};
+localStorage.setItem('configuracoes',JSON.stringify(config));
+notif('Configurações salvas com sucesso!','ok');
+}
+
+function loadConfig(){
+const config=JSON.parse(localStorage.getItem('configuracoes'))||{
+tempoResposta:24,
+tempoResolucao:7,
+notifEmail:true,
+notifNovoChamado:true,
+notifResposta:true,
+categorias:'Hardware\nSoftware\nRede\nEmail\nImpressora\nTelefonia\nOutro'
+};
+const el1=document.getElementById('confTempoResposta');
+const el2=document.getElementById('confTempoResolucao');
+const el3=document.getElementById('confNotifEmail');
+const el4=document.getElementById('confNotifNovoChamado');
+const el5=document.getElementById('confNotifResposta');
+const el6=document.getElementById('confCategorias');
+if(el1)el1.value=config.tempoResposta;
+if(el2)el2.value=config.tempoResolucao;
+if(el3)el3.checked=config.notifEmail;
+if(el4)el4.checked=config.notifNovoChamado;
+if(el5)el5.checked=config.notifResposta;
+if(el6)el6.value=config.categorias;
+
+document.getElementById('statTotal').textContent=chamados.length;
+document.getElementById('statAbertos').textContent=chamados.filter(c=>c.status==='aberto').length;
+document.getElementById('statResolvidos').textContent=chamados.filter(c=>c.status==='resolvido'||c.status==='fechado').length;
+document.getElementById('statUrgentes').textContent=chamados.filter(c=>c.prioridade==='Urgente').length;
+}
+
+// Encerrar chamado (usuário)
+window.encerrarChamado=function(){
+if(!currentId)return;
+if(!confirm('Deseja realmente encerrar este chamado?'))return;
+const c=chamados.find(x=>x.id===currentId);
+if(c){
+c.status='fechado';
+c.dataEncerramento=new Date().toISOString();
+save();
+if(!msgs[currentId])msgs[currentId]=[];
+msgs[currentId].push({
+autor:'Sistema',
+tipo:'admin',
+texto:`Chamado encerrado por ${user.nome}`,
+data:new Date().toISOString()
+});
+save();
+
+const btnContainer=document.getElementById('btnEncerrarContainer');
+btnContainer.style.transition='all 0.3s ease';
+btnContainer.style.opacity='0';
+btnContainer.style.transform='scale(0.9)';
+
+setTimeout(()=>{
+btnContainer.classList.add('hide');
+const avalBox=document.getElementById('avaliacaoContainer');
+avalBox.classList.remove('hide');
+avalBox.style.opacity='0';
+avalBox.style.transform='scale(0.9)';
+
+createConfetti();
+
+setTimeout(()=>{
+avalBox.style.transition='all 0.5s ease';
+avalBox.style.opacity='1';
+avalBox.style.transform='scale(1)';
+},50);
+},300);
+
+notif('Chamado encerrado! Por favor, avalie o atendimento.','ok');
+loadChat(currentId);
+loadHist();
+}
+}
+
+function createConfetti(){
+const colors=['#fbbf24','#10b981','#3b82f6','#ef4444','#8b5cf6'];
+const avalBox=document.getElementById('avaliacaoContainer');
+for(let i=0;i<30;i++){
+setTimeout(()=>{
+const confetti=document.createElement('div');
+confetti.className='confetti';
+confetti.style.left=Math.random()*100+'%';
+confetti.style.background=colors[Math.floor(Math.random()*colors.length)];
+confetti.style.animationDelay=Math.random()*0.5+'s';
+avalBox.style.position='relative';
+avalBox.appendChild(confetti);
+setTimeout(()=>confetti.remove(),2000);
+},i*50);
+}
+}
+
+// Avaliação
+let avaliacaoSelecionada=0;
+window.enviarAvaliacao=function(){
+if(!currentId)return;
+if(avaliacaoSelecionada===0){
+notif('Por favor, selecione uma nota de 1 a 5 estrelas','err');
+return;
+}
+const c=chamados.find(x=>x.id===currentId);
+if(c){
+c.avaliacao={
+nota:avaliacaoSelecionada,
+comentario:document.getElementById('comentarioAvaliacao').value,
+data:new Date().toISOString(),
+usuario:user.nome
+};
+save();
+if(!msgs[currentId])msgs[currentId]=[];
+msgs[currentId].push({
+autor:'Sistema',
+tipo:'admin',
+texto:`Avaliação recebida: ${avaliacaoSelecionada} estrelas\n${c.avaliacao.comentario?'Comentário: '+c.avaliacao.comentario:''}`,
+data:new Date().toISOString()
+});
+save();
+
+const avalBox=document.getElementById('avaliacaoContainer');
+avalBox.innerHTML=`
+<div class="avaliacao-success">
+<i class="fas fa-check-circle"></i>
+<h3 style="color:var(--ok);margin-bottom:0.5rem;font-size:1.5rem">Avaliação Enviada!</h3>
+<p style="color:var(--txt-secondary);font-size:1rem">Obrigado pelo seu feedback. Sua opinião é muito importante para nós!</p>
+</div>
+`;
+
+createConfetti();
+
+setTimeout(()=>{
+avalBox.style.transition='all 0.5s ease';
+avalBox.style.opacity='0';
+avalBox.style.transform='scale(0.9)';
+setTimeout(()=>{
+avalBox.classList.add('hide');
+fecharModal();
+},500);
+},3000);
+
+notif('Obrigado pela sua avaliação!','ok');
+loadChat(currentId);
+}
+}
+
+// Configurar rating
+document.addEventListener('click',e=>{
+if(e.target.closest('.rating i')){
+const star=e.target.closest('.rating i');
+avaliacaoSelecionada=parseInt(star.dataset.rating);
+const textos=['Muito Ruim 😞','Ruim 😕','Regular 😐','Bom 😊','Excelente! 🌟'];
+const ratingText=document.getElementById('ratingText');
+if(ratingText){
+ratingText.textContent=textos[avaliacaoSelecionada-1];
+ratingText.style.animation='fadeInScale 0.3s ease';
+}
+document.querySelectorAll('.rating i').forEach((s,idx)=>{
+if(idx<avaliacaoSelecionada){
+s.classList.add('active');
+}else{
+s.classList.remove('active');
+}
+});
+}
+});
+
+document.addEventListener('mouseover',e=>{
+if(e.target.closest('.rating i')){
+const star=e.target.closest('.rating i');
+const rating=parseInt(star.dataset.rating);
+const textos=['Muito Ruim 😞','Ruim 😕','Regular 😐','Bom 😊','Excelente! 🌟'];
+const ratingText=document.getElementById('ratingText');
+if(ratingText&&avaliacaoSelecionada===0){
+ratingText.textContent=textos[rating-1];
+ratingText.style.opacity='0.6';
+}
+document.querySelectorAll('.rating i').forEach((s,idx)=>{
+if(idx<rating&&!s.classList.contains('active')){
+s.style.color='#fbbf24';
+s.style.opacity='0.6';
+}
+});
+}
+});
+
+document.addEventListener('mouseout',e=>{
+if(e.target.closest('.rating')){
+const ratingText=document.getElementById('ratingText');
+if(ratingText&&avaliacaoSelecionada===0){
+ratingText.textContent='';
+}else if(ratingText){
+ratingText.style.opacity='1';
+}
+document.querySelectorAll('.rating i').forEach((s,idx)=>{
+if(!s.classList.contains('active')){
+s.style.color='#d1d5db';
+s.style.opacity='1';
+}
+});
+}
+});
+
+
 
 console.log('Sistema carregado com sucesso!');
 }); // Fim DOMContentLoaded
